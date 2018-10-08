@@ -1,0 +1,12 @@
+[package]
+name = "the-elements"
+version = "0.0.0"
+authors = []
+
+[dependencies]
+
+[profile.release]
+panic = "abort"
+lto = true
+codegen-units = 1
+
