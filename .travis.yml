@@ -15,5 +15,5 @@ script:
   - RUSTFLAGS="-D warnings" cargo +nightly clippy
   - cargo +nightly test
   - cargo +nightly build --release
-  - strip target/release/plausible
-  - ls -lh target/release/plausible
+  - strip target/release/the-elements
+  - ls -lh target/release/the-elements
