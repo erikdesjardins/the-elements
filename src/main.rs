@@ -6,9 +6,9 @@ extern crate cortex_m_rt;
 
 extern crate panic_halt;
 
-use core::sync::atomic::{compiler_fence, Ordering};
-
-use cortex_m::peripheral::{self, syst::SystClkSource};
+use cortex_m::asm::wfi;
+use cortex_m::peripheral;
+use cortex_m::peripheral::syst::SystClkSource;
 use cortex_m_rt::{entry, exception};
 
 const RCC: u32 = 0x4002_1000;
@@ -39,7 +39,7 @@ fn main() -> ! {
     syst.enable_interrupt();
 
     loop {
-        compiler_fence(Ordering::SeqCst);
+        wfi();
     }
 }
 
