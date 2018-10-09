@@ -5,16 +5,16 @@ extern crate cortex_m;
 extern crate cortex_m_rt;
 extern crate cortex_m_semihosting;
 
-#[cfg(debug_assertions)]
-extern crate panic_halt;
 #[cfg(not(debug_assertions))]
 extern crate panic_abort;
+#[cfg(debug_assertions)]
+extern crate panic_halt;
 
-use core::sync::atomic::{compiler_fence, Ordering};
 use core::fmt::Write;
+use core::sync::atomic::{compiler_fence, Ordering};
 
-use cortex_m_rt::{entry, exception};
 use cortex_m::peripheral::{self, syst::SystClkSource};
+use cortex_m_rt::{entry, exception};
 use cortex_m_semihosting::hio;
 
 const RCC: u32 = 0x4002_1000;
@@ -48,7 +48,9 @@ fn main() -> ! {
     writeln!(hstdout, r#"ticks per "10" ms: {:#x}"#, ticks_per_10ms).unwrap();
     writeln!(hstdout, "precise: {}", peripheral::SYST::is_precise()).unwrap();
 
-    loop { compiler_fence(Ordering::SeqCst); }
+    loop {
+        compiler_fence(Ordering::SeqCst);
+    }
 }
 
 #[exception]
