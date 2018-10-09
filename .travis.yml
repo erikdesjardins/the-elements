@@ -8,6 +8,7 @@ cache:
   cargo: true
 before_script:
   - rustup toolchain add nightly
+  - rustup target add thumbv7m-none-eabi --toolchain=nightly
   - rustup component add rustfmt-preview
   - rustup component add clippy-preview --toolchain=nightly
 script:
