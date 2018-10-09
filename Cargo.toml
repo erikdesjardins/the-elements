@@ -7,6 +7,7 @@ authors = []
 cortex-m = "0.5"
 cortex-m-rt = "0.6"
 panic-halt = "0.2"
+stm32f103xx = "0.10"
 
 [[bin]]
 name = "the-elements"
