@@ -3,59 +3,47 @@
 
 extern crate cortex_m;
 extern crate cortex_m_rt;
-extern crate cortex_m_semihosting;
+extern crate stm32f103xx;
 
-#[cfg(not(debug_assertions))]
-extern crate panic_abort;
-#[cfg(debug_assertions)]
 extern crate panic_halt;
 
-use core::fmt::Write;
-use core::sync::atomic::{compiler_fence, Ordering};
-
-use cortex_m::peripheral::{self, syst::SystClkSource};
+use cortex_m::asm::wfi;
+use cortex_m::interrupt;
+use cortex_m::peripheral::syst::SystClkSource;
 use cortex_m_rt::{entry, exception};
-use cortex_m_semihosting::hio;
-
-const RCC: u32 = 0x4002_1000;
-const GPIO_PORT_C: u32 = 0x4001_1000;
+use stm32f103xx::GPIOC;
 
 #[entry]
 fn main() -> ! {
-    let rcc_apb2enr = unsafe { &mut *((RCC + 0x18) as *mut u32) };
+    let cp = cortex_m::Peripherals::take().unwrap();
+    let dp = stm32f103xx::Peripherals::take().unwrap();
 
-    // enable gpio clock
-    *rcc_apb2enr |= 1 << 4;
+    dp.RCC.apb2enr.modify(|_, w| w.iopcen().enabled());
 
-    let gpio_high = unsafe { &mut *((GPIO_PORT_C + 0x04) as *mut u32) };
+    dp.GPIOC
+        .crh
+        .modify(|_, w| w.mode13().output2().cnf13().open());
 
-    // CNF13  = 0b01 (open-drain output)
-    // MODE13 = 0b10 (up to 2MHz output)
-    *gpio_high = (*gpio_high & 0xff0f_ffff) | 0x0060_0000;
+    interrupt::free(|_| unsafe {
+        GPIOC = Some(dp.GPIOC);
+    });
 
-    let p = cortex_m::Peripherals::take().unwrap();
-
-    // not even close to accurate
-    let ticks_per_10ms = peripheral::SYST::get_ticks_per_10ms();
-
-    let mut syst = p.SYST;
+    let mut syst = cp.SYST;
     syst.set_clock_source(SystClkSource::Core);
-    syst.set_reload(ticks_per_10ms * 1000);
+    syst.set_reload(10_000_000);
     syst.enable_counter();
     syst.enable_interrupt();
 
-    let mut hstdout = hio::hstdout().unwrap();
-    writeln!(hstdout, r#"ticks per "10" ms: {:#x}"#, ticks_per_10ms).unwrap();
-    writeln!(hstdout, "precise: {}", peripheral::SYST::is_precise()).unwrap();
-
     loop {
-        compiler_fence(Ordering::SeqCst);
+        wfi();
     }
 }
 
+static mut GPIOC: Option<GPIOC> = None;
+
 #[exception]
 fn SysTick() {
-    let gpio_data = unsafe { &mut *((GPIO_PORT_C + 0x0C) as *mut u32) };
-
-    *gpio_data ^= 1 << 13;
+    if let Some(gpioc) = unsafe { &GPIOC } {
+        gpioc.odr.modify(|r, w| w.odr13().bit(!r.odr13().bit()));
+    }
 }
