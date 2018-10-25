@@ -7,14 +7,13 @@ branches:
 cache:
   cargo: true
 before_script:
-  - rustup toolchain add nightly
-  - rustup target add thumbv7m-none-eabi --toolchain=nightly
+  - rustup target add thumbv7m-none-eabi
   - rustup component add rustfmt-preview
-  - rustup component add clippy-preview --toolchain=nightly
+  - rustup component add clippy-preview
 script:
   - cargo fmt --all -- --check
-  - RUSTFLAGS="-D warnings" cargo +nightly clippy
-  - cargo +nightly test
-  - cargo +nightly build --release
+  - RUSTFLAGS="-D warnings" cargo clippy
+  - cargo test
+  - cargo build --release
   - strip target/release/the-elements
   - ls -lh target/release/the-elements

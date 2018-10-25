@@ -3,14 +3,14 @@ temperature monitoring
 
 ## Build
 
-`cargo +nightly-msvc build --release`
+`cargo build --release`
 
-`cargo +nightly-msvc size -- -A target/thumbv7m-none-eabi/release/the-elements`
+`cargo size -- -A target/thumbv7m-none-eabi/release/the-elements`
 
-`cargo +nightly-msvc objdump -- -disassemble -no-show-raw-insn -print-imm-hex target/thumbv7m-none-eabi/release/the-elements`
+`cargo objdump -- -disassemble -no-show-raw-insn -print-imm-hex target/thumbv7m-none-eabi/release/the-elements`
 
 ## Run
 
-`openocd`
+`openocd &`
 
-`cargo +nightly-msvc run --release`
+`cargo run --release`
