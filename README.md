@@ -5,9 +5,9 @@ temperature monitoring
 
 `cargo build --release`
 
-`cargo size -- -A target/thumbv7m-none-eabi/release/the-elements`
+`cargo size --bin the-elements --release`
 
-`cargo objdump -- -disassemble -no-show-raw-insn -print-imm-hex target/thumbv7m-none-eabi/release/the-elements`
+`cargo objdump --bin the-elements --release -- -disassemble -no-show-raw-insn -print-imm-hex`
 
 ## Run
 
